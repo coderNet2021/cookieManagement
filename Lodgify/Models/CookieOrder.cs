@@ -12,6 +12,7 @@ namespace Lodgify.Models
         public DateTime CreatedAt { get; set; }
 
         public List<OrderDetails> Items { get; set; } = new List<OrderDetails>();
+        public double TotalAmount { get; set; }
 
         //nav
         public long PersonId { get; set; }

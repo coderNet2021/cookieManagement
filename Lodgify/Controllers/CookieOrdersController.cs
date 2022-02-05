@@ -27,7 +27,7 @@ namespace Lodgify.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrder()
         {
-            return new(await _repoStore.CookieOrder.FindAll());
+            return new(await _repoStore.CookieOrder.FindAll(includes: q=>q.Include(x=>x.Items)));
         }
 
         // GET: api/CookieOrders/5
