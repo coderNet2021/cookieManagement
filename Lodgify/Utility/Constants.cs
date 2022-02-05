@@ -7,6 +7,6 @@ namespace Lodgify.Utility
 {
     public class Constants
     {
-        public const double Budget = 20.0;
+        public const double Budget = 200.0;
     }
 }

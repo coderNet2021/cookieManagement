@@ -23,6 +23,8 @@ namespace Lodgify.Controllers
         }
 
 
+
+
         // GET: api/CookieTypes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CookieType>>> GetCookieType()
@@ -32,9 +34,13 @@ namespace Lodgify.Controllers
             //reference: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-9.0/target-typed-new
             //and https://stackoverflow.com/questions/65352087/cannot-implicitly-convert-type-ienumerablet-to-actionresultienumerablet
 
-
-            return new(await _repoStore.CookieType.FindAll());
+            //get all the cookie types and their list of price from the other table cookieTypePriceList
+            return new(await _repoStore.CookieType.FindAll(includes: q => q.Include(x => x.Items)));
         }
+
+
+
+
 
         // GET: api/CookieTypes/5
         [HttpGet("{id}")]
@@ -50,6 +56,9 @@ namespace Lodgify.Controllers
             return cookieType;
         }
 
+
+
+
         // PUT: api/CookieTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -62,8 +71,20 @@ namespace Lodgify.Controllers
 
             try
             {
+                //updating the current price of the cookie type
+                //and also entering new row in the PriceList history for the cookie type
                 _repoStore.CookieType.Update(cookieType);
+                
+                CookieTypePriceList aCookieTypePriceObject = new CookieTypePriceList();
+                aCookieTypePriceObject.AtDate = DateTime.Now;
+                aCookieTypePriceObject.Price = cookieType.Price;
+
+                cookieType.Items.Add(aCookieTypePriceObject);
+
+                await _repoStore.CookieTypePriceList.Add(aCookieTypePriceObject);
+
                 await _repoStore.CookieType.Save();
+                await _repoStore.CookieTypePriceList.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -80,6 +101,9 @@ namespace Lodgify.Controllers
             return NoContent();
         }
 
+
+
+
         // POST: api/CookieTypes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -90,6 +114,9 @@ namespace Lodgify.Controllers
 
             return CreatedAtAction("GetCookieType", new { id = cookieType.Id }, cookieType);
         }
+
+
+
 
         // DELETE: api/CookieTypes/5
         [HttpDelete("{id}")]
@@ -106,6 +133,7 @@ namespace Lodgify.Controllers
 
             return NoContent();
         }
+
 
         private async Task<bool> CookieTypeExists(int id)
         {

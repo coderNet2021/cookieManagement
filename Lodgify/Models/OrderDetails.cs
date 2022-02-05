@@ -10,5 +10,8 @@
         public CookieType CookieType { get; set; }
 
 
+        
+
+
     }
 }

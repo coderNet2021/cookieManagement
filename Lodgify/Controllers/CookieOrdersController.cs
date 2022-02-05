@@ -18,11 +18,16 @@ namespace Lodgify.Controllers
     public class CookieOrdersController : ControllerBase
     {
         private readonly IRepositoryStore _repoStore;
+        private readonly cookiesContext _context;
 
-        public CookieOrdersController(IRepositoryStore repoStore)
+
+        public CookieOrdersController(IRepositoryStore repoStore, cookiesContext context)
         {
             _repoStore = repoStore;
+            _context = context;
         }
+
+
 
         // GET: api/CookieOrders
         [HttpGet]
@@ -30,6 +35,33 @@ namespace Lodgify.Controllers
         {
             return new(await _repoStore.CookieOrder.FindAll(includes: q=>q.Include(x=>x.Items)));
         }
+        
+        
+
+        [HttpGet("{month}/{year}")]
+        public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrderMY(int month,int year)
+        {
+            return new(await _repoStore.CookieOrder.FindAll(u=>u.CreatedAt.Month==month && u.CreatedAt.Year==year,includes: q => q.Include(x => x.Items)));
+        }
+
+
+
+        [HttpGet("{id}/{month}/{year}")]
+        public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrderPMY(int id,int month, int year)
+        {
+            return new(await _repoStore.CookieOrder.FindAll(u => u.CreatedAt.Month == month && u.CreatedAt.Year == year && u.PersonId==id, includes: q => q.Include(x => x.Items)));
+        }
+
+
+        [HttpGet("cookiType/{id}/{month}/{year}")]
+        public async Task<ActionResult<IEnumerable<OrderDetails>>> GetCookieTypeTMY(int id, int month, int year)
+        {
+
+
+            return _context.OrderDetails.Include("CookieOrder").Include("CookieType").Where(a=>a.CookieTypeId==id ).ToList() ;
+
+        }
+
 
         // GET: api/CookieOrders/5
         [HttpGet("{id}")]
@@ -44,6 +76,8 @@ namespace Lodgify.Controllers
 
             return cookieOrder;
         }
+
+
 
         // PUT: api/CookieOrders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -75,6 +109,8 @@ namespace Lodgify.Controllers
             return NoContent();
         }
 
+        
+        
         // POST: api/CookieOrders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -108,12 +144,23 @@ namespace Lodgify.Controllers
             {
                 await _repoStore.CookieOrder.Save();
                 await _repoStore.OrderDetails.Save();
+
+                string[] lines =
+        {
+            "First line", "Second line", "Third line"
+        };
+                await System.IO.File.WriteAllLinesAsync("WriteLines.txt", lines);
+
+
+
                 return CreatedAtAction("GetCookieOrder", new { id = cookieOrderDetailsDto.CookieOrder.Id }, cookieOrderDetailsDto.CookieOrder);
             }
 
             else return BadRequest(new { message = Constants.Budget+ "$ has been reached, if added to your current order, plz make the quantities fewer, or delete some cookies " });
         }
 
+        
+        
         // DELETE: api/CookieOrders/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCookieOrder(int id)
