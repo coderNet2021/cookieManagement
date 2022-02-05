@@ -81,17 +81,25 @@ namespace Lodgify.Controllers
         {
             
 
-            List<OrderDetails> anOrderDetailsList = new List<OrderDetails>(); 
+            List<OrderDetails> anOrderDetailsList = new List<OrderDetails>();
+            double TotalAmount = 0.0;
 
             foreach (var anOrderDetail in cookieOrderDetailsDto.OrderDetails)
             {
                 OrderDetails od = new OrderDetails();
+                CookieType aCookietype = new CookieType();
+
                 od = anOrderDetail;
                 anOrderDetailsList.Add(od);
                 await _repoStore.OrderDetails.Add(od);
+
+                aCookietype = await _repoStore.CookieType.Find(od.CookieTypeId);
+
+                TotalAmount += od.Quantity * aCookietype.Price;
             }
 
             cookieOrderDetailsDto.CookieOrder.Items = anOrderDetailsList;
+            cookieOrderDetailsDto.CookieOrder.TotalAmount = TotalAmount;
 
             await _repoStore.CookieOrder.Add(cookieOrderDetailsDto.CookieOrder);
 
