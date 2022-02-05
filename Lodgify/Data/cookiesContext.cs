@@ -17,6 +17,7 @@ namespace Lodgify.Data
         public DbSet<CookieOrder> CookieOrder { get; set; }
         public DbSet<CookieType> CookieType { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<CookieTypePriceList> CookieTypePriceList { get; set; }
 
 
     }
