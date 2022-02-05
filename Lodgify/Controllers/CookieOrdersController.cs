@@ -136,7 +136,8 @@ namespace Lodgify.Controllers
             return res.Any(el => el.Id == id);
         }
 
-        private async Task<double> TotalCumulativeForMonth(DateTime date) {
+        private async Task<double> TotalCumulativeForMonth(DateTime date) 
+        {
             double result = 0.0;
             List<CookieOrder> cookieOerderList = new List<CookieOrder>();
 

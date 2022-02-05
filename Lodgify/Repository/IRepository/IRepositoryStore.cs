@@ -11,6 +11,7 @@ namespace Lodgify.Repository.IRepository
         ICookieOrder CookieOrder { get; }
         IOrderDetails OrderDetails { get; }
         ICookieType CookieType { get; }
-        
+        ICookieTypePriceList CookieTypePriceList { get; }
+
     }
 }

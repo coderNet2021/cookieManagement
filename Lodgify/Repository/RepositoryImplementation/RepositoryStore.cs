@@ -14,6 +14,7 @@ namespace Lodgify.Repository.RepositoryImplementation
         private ICookieOrder _cookieOrder;
         private ICookieType _cookieType;
         private IOrderDetails _orderDetails;
+        private ICookieTypePriceList _cookieTypePriceList;
         public IPerson Person
         {
             get
@@ -56,6 +57,17 @@ namespace Lodgify.Repository.RepositoryImplementation
                     _orderDetails = new OrderDetailsRepository(_context);
                 }
                 return _orderDetails;
+            }
+        }
+        public ICookieTypePriceList CookieTypePriceList
+        {
+            get
+            {
+                if (_cookieTypePriceList == null)
+                {
+                    _cookieTypePriceList = new CookieTypePriceListRepository(_context);
+                }
+                return _cookieTypePriceList;
             }
         }
 
