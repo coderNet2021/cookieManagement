@@ -85,7 +85,7 @@ namespace Lodgify.Controllers
         [HttpPost]
         public async Task<ActionResult<CookieType>> PostCookieType(CookieType cookieType)
         {
-           await _repoStore.CookieType.Add(cookieType);//To be fixed , should not be await
+            await _repoStore.CookieType.Add(cookieType);//To be fixed , should not be await
             await _repoStore.CookieType.Save();
 
             return CreatedAtAction("GetCookieType", new { id = cookieType.Id }, cookieType);
