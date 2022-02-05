@@ -9,6 +9,7 @@ using Lodgify.Data;
 using Lodgify.Models;
 using Lodgify.Repository.IRepository;
 using Lodgify.DTOs;
+using Lodgify.Utility;
 
 namespace Lodgify.Controllers
 {
@@ -103,14 +104,14 @@ namespace Lodgify.Controllers
 
             await _repoStore.CookieOrder.Add(cookieOrderDetailsDto.CookieOrder);
 
-            await _repoStore.CookieOrder.Save();
-            await _repoStore.OrderDetails.Save();
+            if ((await TotalCumulativeForMonth(DateTime.Now)) + TotalAmount <= Constants.Budget)
+            {
+                await _repoStore.CookieOrder.Save();
+                await _repoStore.OrderDetails.Save();
+                return CreatedAtAction("GetCookieOrder", new { id = cookieOrderDetailsDto.CookieOrder.Id }, cookieOrderDetailsDto.CookieOrder);
+            }
 
-           
-
-
-
-            return CreatedAtAction("GetCookieOrder", new { id = cookieOrderDetailsDto.CookieOrder.Id }, cookieOrderDetailsDto.CookieOrder);
+            else return BadRequest(new { message = Constants.Budget+ "$ has been reached, if added to your current order, plz make the quantities fewer, or delete some cookies " });
         }
 
         // DELETE: api/CookieOrders/5
@@ -133,6 +134,20 @@ namespace Lodgify.Controllers
         {
             var res = await _repoStore.CookieType.FindAll();
             return res.Any(el => el.Id == id);
+        }
+
+        private async Task<double> TotalCumulativeForMonth(DateTime date) {
+            double result = 0.0;
+            List<CookieOrder> cookieOerderList = new List<CookieOrder>();
+
+            cookieOerderList = new(await _repoStore.CookieOrder.FindAll(u => u.CreatedAt.Year == date.Year && u.CreatedAt.Month == date.Month));
+
+            foreach (var item in cookieOerderList)
+            {
+                result += item.TotalAmount;
+            }
+
+            return result;
         }
     }
 }
