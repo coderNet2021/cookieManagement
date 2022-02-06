@@ -10,7 +10,7 @@
         public CookieType CookieType { get; set; }
 
 
-        
+        //public CookieOrder CookieOrder { get; set; }
 
 
     }

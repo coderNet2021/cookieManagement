@@ -54,12 +54,49 @@ namespace Lodgify.Controllers
 
 
         [HttpGet("cookiType/{id}/{month}/{year}")]
-        public async Task<ActionResult<IEnumerable<OrderDetails>>> GetCookieTypeTMY(int id, int month, int year)
+        public async Task<ActionResult<IEnumerable<FlatOrderDetailCookieDTO>>> GetCookieTypeTMY(int id, int month, int year)
         {
+            var orderDetails = await _repoStore.OrderDetails.FindAll(x => x.CookieTypeId == id);
+            var cookieOrder = await _repoStore.CookieOrder.FindAll(x => x.CreatedAt.Month == month && x.CreatedAt.Year == year,includes:q=>q.Include(x=>x.Items));
+
+            List<FlatOrderDetailCookieDTO> orderDetailsResults = new List<FlatOrderDetailCookieDTO>();
+
+            foreach (var item in cookieOrder.Select(x=> new { items = x.Items, order = x.Id, createdat = x.CreatedAt, pid = x.PersonId }))//item = list of order details for this specific month and year coming from CookieOrder table
+            {
+                FlatOrderDetailCookieDTO adto = new FlatOrderDetailCookieDTO();
+                CookieOrder acookiOrder = new CookieOrder();
+                acookiOrder.Id = item.order;
+                acookiOrder.CreatedAt = item.createdat;
+                acookiOrder.PersonId = item.pid;
+
+                adto.CookieOrder = acookiOrder;
+
+                //orderDetailsResults.Add(cookieOrder);
+
+                foreach (var innerItem in item.items) // inner item is a order detail for this specific month and year
+                {
+                    OrderDetails anOrDet = new OrderDetails();
+                    
+                    if (innerItem.CookieTypeId == id) // if i find this specific cookie type id i will take it , and make object that contains 
+                    {
+                        
+                        anOrDet = innerItem;
+                        adto.OrderDetail = anOrDet;
+                        orderDetailsResults.Add(adto);
+                    }
+
+                }
+            }
+
+            return orderDetailsResults;
+
+            //var ListItems = cookieOrder.Select(x => x.Items).Join(cookieOrder, orderDetails, od=>od.Items,co=>co.Fi)
+                     
 
 
-            return _context.OrderDetails.Include("CookieOrder").Include("CookieType").Where(a=>a.CookieTypeId==id ).ToList() ;
+            //var cookieOrder1 = await _repoStore.CookieOrder.FindAll(x => x.CreatedAt.Month == month && x.CreatedAt.Year == year && x.Items.Any(x => x.CookieTypeId == id), includes: q => q.Include(w => w.Items));
 
+            //return new(cookieOrder1);
         }
 
 
