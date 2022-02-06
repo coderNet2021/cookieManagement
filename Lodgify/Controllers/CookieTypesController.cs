@@ -35,9 +35,29 @@ namespace Lodgify.Controllers
             //and https://stackoverflow.com/questions/65352087/cannot-implicitly-convert-type-ienumerablet-to-actionresultienumerablet
 
             //get all the cookie types and their list of price from the other table cookieTypePriceList
-            return new(await _repoStore.CookieType.FindAll(includes: q => q.Include(x => x.Items)));
+            var result = await _repoStore.CookieType.FindAll(includes: q => q.Include(x => x.Items));
+
+            if (result == null) return BadRequest(new { message = "Bad Request of cookie history" });
+
+            if (result.Count() == 0) return NotFound(new { message = "cookie not found!" });
+
+            return new(result);
         }
 
+
+
+
+        [HttpGet("cookiTypePrices/{id}")]
+        public async Task<ActionResult<IEnumerable<CookieType>>> GetCookiePriceHistory(int id)
+        {
+            var result = await _repoStore.CookieType.FindAll(u => u.Id == id, includes: q => q.Include(x => x.Items));
+
+            if (result == null) return BadRequest(new { message = "Bad Request of cookie history" });
+
+            if (result.Count() == 0) return NotFound(new { message = "cookie and Price History not found!" });
+
+            return new(result);
+        }
 
 
 

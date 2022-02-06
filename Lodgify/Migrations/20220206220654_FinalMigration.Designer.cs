@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lodgify.Migrations
 {
     [DbContext(typeof(cookiesContext))]
-    [Migration("20220204194258_AddingCookieOrderDetailsType")]
-    partial class AddingCookieOrderDetailsType
+    [Migration("20220206220654_FinalMigration")]
+    partial class FinalMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -34,12 +34,12 @@ namespace Lodgify.Migrations
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<long?>("PersonId1")
-                        .HasColumnType("bigint");
+                    b.Property<double>("TotalAmount")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PersonId1");
+                    b.HasIndex("PersonId");
 
                     b.ToTable("CookieOrder");
                 });
@@ -51,9 +51,6 @@ namespace Lodgify.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("AtDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -63,6 +60,29 @@ namespace Lodgify.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CookieType");
+                });
+
+            modelBuilder.Entity("Lodgify.Models.CookieTypePriceList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("AtDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CookieTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CookieTypeId");
+
+                    b.ToTable("CookieTypePriceList");
                 });
 
             modelBuilder.Entity("Lodgify.Models.OrderDetails", b =>
@@ -92,9 +112,9 @@ namespace Lodgify.Migrations
 
             modelBuilder.Entity("Lodgify.Models.Person", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("FirstName")
@@ -112,9 +132,18 @@ namespace Lodgify.Migrations
                 {
                     b.HasOne("Lodgify.Models.Person", "Person")
                         .WithMany()
-                        .HasForeignKey("PersonId1");
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("Lodgify.Models.CookieTypePriceList", b =>
+                {
+                    b.HasOne("Lodgify.Models.CookieType", null)
+                        .WithMany("Items")
+                        .HasForeignKey("CookieTypeId");
                 });
 
             modelBuilder.Entity("Lodgify.Models.OrderDetails", b =>
@@ -133,6 +162,11 @@ namespace Lodgify.Migrations
                 });
 
             modelBuilder.Entity("Lodgify.Models.CookieOrder", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Lodgify.Models.CookieType", b =>
                 {
                     b.Navigation("Items");
                 });

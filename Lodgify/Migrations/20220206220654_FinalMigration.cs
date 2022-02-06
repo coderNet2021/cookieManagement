@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Lodgify.Migrations
 {
-    public partial class AddingCookieOrderDetailsType : Migration
+    public partial class FinalMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,8 +14,7 @@ namespace Lodgify.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    AtDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Price = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -26,7 +25,7 @@ namespace Lodgify.Migrations
                 name: "Person",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -37,24 +36,45 @@ namespace Lodgify.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CookieTypePriceList",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    AtDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CookieTypeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CookieTypePriceList", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CookieTypePriceList_CookieType_CookieTypeId",
+                        column: x => x.CookieTypeId,
+                        principalTable: "CookieType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CookieOrder",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PersonId = table.Column<int>(type: "int", nullable: false),
-                    PersonId1 = table.Column<long>(type: "bigint", nullable: true)
+                    TotalAmount = table.Column<double>(type: "float", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CookieOrder", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CookieOrder_Person_PersonId1",
-                        column: x => x.PersonId1,
+                        name: "FK_CookieOrder_Person_PersonId",
+                        column: x => x.PersonId,
                         principalTable: "Person",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -85,9 +105,14 @@ namespace Lodgify.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CookieOrder_PersonId1",
+                name: "IX_CookieOrder_PersonId",
                 table: "CookieOrder",
-                column: "PersonId1");
+                column: "PersonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CookieTypePriceList_CookieTypeId",
+                table: "CookieTypePriceList",
+                column: "CookieTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_CookieOrderId",
@@ -102,6 +127,9 @@ namespace Lodgify.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "CookieTypePriceList");
+
             migrationBuilder.DropTable(
                 name: "OrderDetails");
 
