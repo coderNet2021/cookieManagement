@@ -145,13 +145,9 @@ namespace Lodgify.Controllers
                 await _repoStore.CookieOrder.Save();
                 await _repoStore.OrderDetails.Save();
 
-                string[] lines =
-        {
-            "First line", "Second line", "Third line"
-        };
-                await System.IO.File.WriteAllLinesAsync("WriteLines.txt", lines);
-
-
+                CookieOrderDetailsDTO aCookieOrderDetailsDto = new CookieOrderDetailsDTO();
+                aCookieOrderDetailsDto = cookieOrderDetailsDto;
+                await WriteToFile(aCookieOrderDetailsDto);
 
                 return CreatedAtAction("GetCookieOrder", new { id = cookieOrderDetailsDto.CookieOrder.Id }, cookieOrderDetailsDto.CookieOrder);
             }
@@ -196,6 +192,15 @@ namespace Lodgify.Controllers
             }
 
             return result;
+        }
+
+        private async Task WriteToFile(CookieOrderDetailsDTO cookiOrderDetailsDto)//cookiOrderDetailsDto.CookieOrder.Person.Id.ToString(),
+        {
+            string[] lines =
+       {
+             " has ordered", "yuyuy"
+        };
+            await System.IO.File.WriteAllLinesAsync(@"C:\LodgifyOrders\Order"+DateTime.Now.ToShortDateString()+".txt", lines);
         }
     }
 }
