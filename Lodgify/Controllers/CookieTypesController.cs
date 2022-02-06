@@ -16,7 +16,7 @@ namespace Lodgify.Controllers
     public class CookieTypesController : ControllerBase
     {
 
-        private IRepositoryStore _repoStore;
+        private readonly IRepositoryStore _repoStore;
         public CookieTypesController(IRepositoryStore repoStore)
         {
             _repoStore = repoStore;

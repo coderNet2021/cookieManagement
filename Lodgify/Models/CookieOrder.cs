@@ -15,7 +15,7 @@ namespace Lodgify.Models
         public double TotalAmount { get; set; }
 
         //nav
-        public long PersonId { get; set; }
+        public int PersonId { get; set; }
         public Person Person { get; set; }
     }
 }
