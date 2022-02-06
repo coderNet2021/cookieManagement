@@ -29,6 +29,7 @@ namespace Lodgify.Controllers
 
 
 
+
         // GET: api/CookieOrders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrder()
@@ -38,6 +39,7 @@ namespace Lodgify.Controllers
         
         
 
+
         [HttpGet("{month}/{year}")]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrderMY(int month,int year)
         {
@@ -46,11 +48,14 @@ namespace Lodgify.Controllers
 
 
 
+
         [HttpGet("{id}/{month}/{year}")]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrderPMY(int id,int month, int year)
         {
             return new(await _repoStore.CookieOrder.FindAll(u => u.CreatedAt.Month == month && u.CreatedAt.Year == year && u.PersonId==id, includes: q => q.Include(x => x.Items)));
         }
+
+
 
 
         [HttpGet("cookiType/{id}/{month}/{year}")]
@@ -100,6 +105,10 @@ namespace Lodgify.Controllers
         }
 
 
+
+
+
+
         // GET: api/CookieOrders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CookieOrder>> GetCookieOrder(int id)
@@ -113,6 +122,8 @@ namespace Lodgify.Controllers
 
             return cookieOrder;
         }
+
+
 
 
 
@@ -147,6 +158,9 @@ namespace Lodgify.Controllers
         }
 
         
+
+
+
         
         // POST: api/CookieOrders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -183,7 +197,14 @@ namespace Lodgify.Controllers
                 await _repoStore.OrderDetails.Save();
 
                 CookieOrderDetailsDTO aCookieOrderDetailsDto = new CookieOrderDetailsDTO();
-                aCookieOrderDetailsDto = cookieOrderDetailsDto;
+                CookieOrder acookiOrderForDto = new CookieOrder();
+                acookiOrderForDto = cookieOrderDetailsDto.CookieOrder;
+                aCookieOrderDetailsDto.CookieOrder = acookiOrderForDto;
+
+                List<OrderDetails> anOrderDetailsForDTO = new List<OrderDetails>();
+                anOrderDetailsForDTO = cookieOrderDetailsDto.OrderDetails;
+                aCookieOrderDetailsDto.OrderDetails = anOrderDetailsForDTO;
+                
                 await WriteToFile(aCookieOrderDetailsDto);
 
                 return CreatedAtAction("GetCookieOrder", new { id = cookieOrderDetailsDto.CookieOrder.Id }, cookieOrderDetailsDto.CookieOrder);
@@ -193,6 +214,8 @@ namespace Lodgify.Controllers
         }
 
         
+
+
         
         // DELETE: api/CookieOrders/5
         [HttpDelete("{id}")]
@@ -210,11 +233,16 @@ namespace Lodgify.Controllers
             return NoContent();
         }
 
+
+
+
         private async Task<bool> CookieOrderExists(int id)
         {
             var res = await _repoStore.CookieType.FindAll();
             return res.Any(el => el.Id == id);
         }
+
+
 
         private async Task<double> TotalCumulativeForMonth(DateTime date) 
         {
@@ -231,13 +259,15 @@ namespace Lodgify.Controllers
             return result;
         }
 
+
+
         private async Task WriteToFile(CookieOrderDetailsDTO cookiOrderDetailsDto)//cookiOrderDetailsDto.CookieOrder.Person.Id.ToString(),
         {
             string[] lines =
        {
-             " has ordered", "yuyuy"
+             cookiOrderDetailsDto.CookieOrder.PersonId.ToString(), "yuyuy"
         };
-            await System.IO.File.WriteAllLinesAsync(@"C:\LodgifyOrders\Order"+DateTime.Now.ToShortDateString()+".txt", lines);
+            await System.IO.File.WriteAllLinesAsync(@"C:\LodgifyOrders\Order"+DateTime.Now.ToLongDateString()+ DateTime.Now.Hour+DateTime.Now.Second+ ".txt", lines);
         }
     }
 }
