@@ -263,11 +263,22 @@ namespace Lodgify.Controllers
 
         private async Task WriteToFile(CookieOrderDetailsDTO cookiOrderDetailsDto)//cookiOrderDetailsDto.CookieOrder.Person.Id.ToString(),
         {
-            string[] lines =
-       {
-             cookiOrderDetailsDto.CookieOrder.PersonId.ToString(), "yuyuy"
-        };
-            await System.IO.File.WriteAllLinesAsync(@"C:\LodgifyOrders\Order"+DateTime.Now.ToLongDateString()+ DateTime.Now.Hour+DateTime.Now.Second+ ".txt", lines);
+            string orderDetails = "";
+            string person = "this order is issued from personId \t" + cookiOrderDetailsDto.CookieOrder.PersonId+"\n";
+            string total = "\tTotal \t" + cookiOrderDetailsDto.CookieOrder.TotalAmount + "\n";
+            string atDate = "\tthis order is created on \t" + cookiOrderDetailsDto.CookieOrder.CreatedAt;
+            string timeStamp = DateTime.Now.ToLongDateString() + DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second;
+
+            foreach (var item in cookiOrderDetailsDto.OrderDetails)
+            {
+                orderDetails += "\tcookie type Id \t" + item.CookieTypeId + "\t - Quantity :\t" + item.Quantity+"\n"; 
+            }
+
+            string[] lines ={
+             person, orderDetails,total, atDate
+            };
+
+            await System.IO.File.WriteAllLinesAsync(@"C:\LodgifyOrders\Order"+ timeStamp + ".txt", lines);
         }
     }
 }
