@@ -29,7 +29,13 @@ namespace Lodgify.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Person>>> GetPerson()
         {
-            return new(await _repoStore.Person.FindAll());
+            var result = await _repoStore.Person.FindAll();
+
+            if (result == null) return BadRequest(new { message = "Bad Request of Persons" });
+
+            if (result.Count() == 0) return NotFound(new { message = "Persons not found!" });
+
+            return new(result);
         }
 
 

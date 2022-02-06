@@ -18,13 +18,13 @@ namespace Lodgify.Controllers
     public class CookieOrdersController : ControllerBase
     {
         private readonly IRepositoryStore _repoStore;
-        private readonly cookiesContext _context;
+        //private readonly cookiesContext _context;
 
 
-        public CookieOrdersController(IRepositoryStore repoStore, cookiesContext context)
+        public CookieOrdersController(IRepositoryStore repoStore /*, cookiesContext context*/)
         {
             _repoStore = repoStore;
-            _context = context;
+            //_context = context;
         }
 
 
@@ -34,7 +34,13 @@ namespace Lodgify.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrder()
         {
-            return new(await _repoStore.CookieOrder.FindAll(includes: q=>q.Include(x=>x.Items)));
+            var result = await _repoStore.CookieOrder.FindAll(includes: q => q.Include(x => x.Items).Include(u => u.Person));
+
+            if (result == null) return BadRequest(new { message = "Bad Request of orders " });
+
+            if (result.Count() == 0) return NotFound(new { message = "orders not found!" });
+
+            return new(result);
         }
         
         
@@ -43,7 +49,14 @@ namespace Lodgify.Controllers
         [HttpGet("{month}/{year}")]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrderMY(int month,int year)
         {
-            return new(await _repoStore.CookieOrder.FindAll(u=>u.CreatedAt.Month==month && u.CreatedAt.Year==year,includes: q => q.Include(x => x.Items)));
+            var result = await _repoStore.CookieOrder.FindAll(u => u.CreatedAt.Month == month && u.CreatedAt.Year == year, includes: q => q.Include(x => x.Items)
+                                                                                                                                           .Include(u => u.Person));
+
+            if (result == null) return BadRequest(new { message = "Bad Request of orders in month "+month+" year "+year });
+
+            if (result.Count() == 0) return NotFound(new { message = "orders not found!" });
+
+            return new(result);
         }
 
 
@@ -52,7 +65,15 @@ namespace Lodgify.Controllers
         [HttpGet("{id}/{month}/{year}")]
         public async Task<ActionResult<IEnumerable<CookieOrder>>> GetCookieOrderPMY(int id,int month, int year)
         {
-            return new(await _repoStore.CookieOrder.FindAll(u => u.CreatedAt.Month == month && u.CreatedAt.Year == year && u.PersonId==id, includes: q => q.Include(x => x.Items)));
+            var result = await _repoStore.CookieOrder.FindAll(
+                u => u.CreatedAt.Month == month && u.CreatedAt.Year == year && u.PersonId == id, includes: q => q.Include(x => x.Items)
+                                                                                                                 .Include(u => u.Person));
+
+            if (result == null) return BadRequest(new { message = "Bad Request of orders issued by person id = "+id +" in month " + month + " year " + year });
+
+            if (result.Count() == 0) return NotFound(new { message = "orders not found!" });
+
+            return new(result);
         }
 
 
@@ -95,13 +116,6 @@ namespace Lodgify.Controllers
 
             return orderDetailsResults;
 
-            //var ListItems = cookieOrder.Select(x => x.Items).Join(cookieOrder, orderDetails, od=>od.Items,co=>co.Fi)
-                     
-
-
-            //var cookieOrder1 = await _repoStore.CookieOrder.FindAll(x => x.CreatedAt.Month == month && x.CreatedAt.Year == year && x.Items.Any(x => x.CookieTypeId == id), includes: q => q.Include(w => w.Items));
-
-            //return new(cookieOrder1);
         }
 
 
@@ -113,7 +127,7 @@ namespace Lodgify.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CookieOrder>> GetCookieOrder(int id)
         {
-            var cookieOrder = await _repoStore.CookieOrder.Find(id);
+            var cookieOrder = await _repoStore.CookieOrder.Find(id);//To Be Fixed : not able to retrive items in  postman
 
             if (cookieOrder == null)
             {
@@ -139,6 +153,7 @@ namespace Lodgify.Controllers
 
             try
             {
+                //TODO : Updating the TotalAmount
                 _repoStore.CookieOrder.Update(cookieOrder);
                 await _repoStore.CookieOrder.Save();
             }

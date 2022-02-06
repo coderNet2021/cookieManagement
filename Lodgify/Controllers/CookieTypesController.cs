@@ -17,9 +17,11 @@ namespace Lodgify.Controllers
     {
 
         private readonly IRepositoryStore _repoStore;
-        public CookieTypesController(IRepositoryStore repoStore)
+        //private readonly cookiesContext _context;
+        public CookieTypesController(IRepositoryStore repoStore /*, cookiesContext context*/)
         {
             _repoStore = repoStore;
+           // _context = context;
         }
 
 
@@ -53,8 +55,9 @@ namespace Lodgify.Controllers
             var result = await _repoStore.CookieType.FindAll(u => u.Id == id, includes: q => q.Include(x => x.Items));
 
             if (result == null) return BadRequest(new { message = "Bad Request of cookie history" });
+            var items = result.Select(x => new { items = x.Items });
 
-            if (result.Count() == 0) return NotFound(new { message = "cookie and Price History not found!" });
+            if (items.Count() == 0 || items==null) return NotFound(new { message = "cookie and Price History not found!" });
 
             return new(result);
         }
@@ -130,7 +133,18 @@ namespace Lodgify.Controllers
         public async Task<ActionResult<CookieType>> PostCookieType(CookieType cookieType)
         {
             await _repoStore.CookieType.Add(cookieType);
+
+
+            CookieTypePriceList aCookieTypePriceObject = new CookieTypePriceList();
+            aCookieTypePriceObject.AtDate = DateTime.Now;
+            aCookieTypePriceObject.Price = cookieType.Price;
+
+            cookieType.Items.Add(aCookieTypePriceObject);
+
+            await _repoStore.CookieTypePriceList.Add(aCookieTypePriceObject);
+
             await _repoStore.CookieType.Save();
+            await _repoStore.CookieTypePriceList.Save();
 
             return CreatedAtAction("GetCookieType", new { id = cookieType.Id }, cookieType);
         }
@@ -140,13 +154,23 @@ namespace Lodgify.Controllers
 
         // DELETE: api/CookieTypes/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCookieType(int id)
+        public async Task<IActionResult> DeleteCookieType(int id)//Not Working delete constraint exception
         {
-            var cookieType = await _repoStore.CookieType.Find(id);// _context.CookieType.FindAsync(id);
+            var cookieType = await _repoStore.CookieType.Find(id); //await _context.CookieType.Include("CookieTypePriceList").Where(x=>x.Id==id).FirstOrDefaultAsync(); ////
+
             if (cookieType == null)
             {
                 return NotFound();
             }
+            
+            //foreach (var item in cookieType.Items)
+            //{
+            //    _repoStore.CookieTypePriceList.Remove(item);
+            //    await _repoStore.CookieTypePriceList.Save();
+            //}
+
+            _repoStore.CookieTypePriceList.RemoveRange(cookieType.Items);
+            await _repoStore.CookieTypePriceList.Save();
 
             _repoStore.CookieType.Remove(cookieType);
             await _repoStore.CookieType.Save();

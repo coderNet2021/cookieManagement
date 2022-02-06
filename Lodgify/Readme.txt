@@ -92,11 +92,15 @@ using Curl : reference https://www.codepedia.org/ama/how-to-test-a-rest-api-from
 issues:
 --------
 
-while implementing the end point : [HttpGet("cookiType/{id}/{month}/{year}")]
+1-while implementing the end point : [HttpGet("cookiType/{id}/{month}/{year}")]
 I used a nested foreach loop.
 I am not satistfied with this method, but the linq query i used indicate a circular relationship , and does not work
 even though i followed the conventions in implementing classes in EF core. 
 so i could not resolve this problem 
+
+2-problem with deleting cookieTypes and CookieOrder --EXCEPTION
+
+3-TODO : updating TotalAmount in CookieOrder after updating orders in orderDetails and changing quantities
 
 --------------------------
 	
