@@ -54,6 +54,7 @@ the End points:
 -------------------
 I Used the Rest API to make the web api project
 
+	A-REQUIRED END POINTS :
 	Post/Order : i named it : https://localhost:44368/api/CookieOrders
 					this will create a cookie order
 					that is issued from a person or employee.
@@ -71,6 +72,33 @@ I Used the Rest API to make the web api project
 					 this end point updates the current price of a cookie and 
 					 keeps tracking of the history of the prices at different dates.
 
+	B-Additional end points:
+		cookies end points :
+		get https://localhost:44368/api/cookieTypes
+		get https://localhost:44368/api/cookieTypes/3
+		post https://localhost:44368/api/cookieTypes
+		put https://localhost:44368/api/cookieTypes/6
+		delete https://localhost:44368/api/cookieTypes/6   --EXCEPTION
+
+		orders end points:
+		get https://localhost:44368/api/CookieOrders
+		get https://localhost:44368/api/CookieOrders/2
+		post https://localhost:44368/api/CookieOrders
+		put https://localhost:44368/api/CookieOrders/2
+		delete https://localhost:44368/api/CookieOrders/2  --EXCEPTION
+
+		get https://localhost:44368/api/CookieOrders/2/2022  --order per month and year
+		get https://localhost:44368/api/CookieOrders/1/2/2022  --order per person and month and year
+		get https://localhost:44368/api/CookieOrders/cookiType/2/2/2022 --orders per cookieType per month per year
+		get https://localhost:44368/api/CookieTypes/cookiTypePrices/2 --consult the history of prices for a specific cookie type
+
+
+		person end points: 
+		get https://localhost:44368/api/People
+		get https://localhost:44368/api/People/1
+		post https://localhost:44368/api/People
+		put https://localhost:44368/api/People/1
+		delete https://localhost:44368/api/People/1
 
 
 A way to call the API from CLI :
